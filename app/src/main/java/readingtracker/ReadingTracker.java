@@ -3,92 +3,80 @@ package readingtracker;
 import java.util.LinkedList;
 
 public class ReadingTracker {
-    private LinkedList<String> wantToReadTitles; // The titles of the books you want to read
-    private LinkedList<String> wantToReadAuthors; // The authors of the books you want to read
-    private LinkedList<Integer> wantToReadPages; // The number of pages in each book you want to read.
+    private LinkedList<Book> wantToRead; // The books you want to read
 
-    private LinkedList<String> readingTitles;
-    private LinkedList<String> readingAuthors;
-    private LinkedList<Integer> readingPages; 
+    private LinkedList<Book> reading;
     private LinkedList<Integer> readingProgress; // The number of pages you have already read in the books you are reading
 
-    private LinkedList<String> readTitles;
-    private LinkedList<String> readAuthors;
-    private LinkedList<Integer> readPages;
+    private LinkedList<Book> read;
 
     public ReadingTracker() {
-        wantToReadTitles = new LinkedList<String>();
-        wantToReadAuthors = new LinkedList<String>();
-        wantToReadPages = new LinkedList<Integer>();
+        wantToRead = new LinkedList<Book>();
 
-        readingTitles = new LinkedList<String>();
-        readingAuthors = new LinkedList<String>();
-        readingPages = new LinkedList<Integer>();
+        reading = new LinkedList<Book>();
         readingProgress = new LinkedList<Integer>();
 
-        readTitles = new LinkedList<String>();
-        readAuthors = new LinkedList<String>();
-        readPages = new LinkedList<Integer>();
+        read = new LinkedList<Book>();
     }
 
     public void addToWantToRead(String title, String author, Integer pages) {
-        wantToReadTitles.add(title);
-        wantToReadAuthors.add(author);
-        wantToReadPages.add(pages);
+        wantToRead.add(new Book(title, author, pages));
     }
 
-    public void beginReading(String title) {
-        Integer index = wantToReadTitles.indexOf(title); // index = 0
-        readingTitles.add(wantToReadTitles.get(index));
-        readingAuthors.add(wantToReadAuthors.get(index));
-        readingPages.add(wantToReadPages.get(index));
-        readingProgress.add(0);
+    private int getIndex(LinkedList<Book> booklist, String title) {
+        for (int i = 0; i < booklist.size(); i++) {
+            if (booklist.get(i).title.equals(title)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
-        wantToReadTitles.remove(index);
-        wantToReadAuthors.remove(index);
-        wantToReadPages.remove(index);
+    public void beginReading(String title, Integer startingPoint) {
+        Integer index = getIndex(wantToRead, title); // index = 0
+        reading.add(wantToRead.get(index));
+        readingProgress.add(startingPoint);
+
+        wantToRead.remove(index);
     }
 
     public void updateProgress(String title, Integer newProgress)
     {
-        Integer index = readingTitles.indexOf(title);
+        Integer index = getIndex(reading, title);
         readingProgress.set(index, newProgress);
-        if (newProgress == readingPages.get(index)) {
+        if (newProgress == reading.get(index).pages) {
             finishReading(title);
         }
     }
 
     public void finishReading(String title) {
-        Integer index = readingTitles.indexOf(title);
-        readTitles.add(readingTitles.get(index));
-        readAuthors.add(readingAuthors.get(index));
-        readPages.add(readingPages.get(index));
+        Integer index = getIndex(reading, title);
+        read.add(reading.get(index));
 
-        readingTitles.remove(index);
-        readingAuthors.remove(index);
-        readingPages.remove(index);
+        reading.remove(index);
+        readingProgress.remove(index);
     }
 
     public String getWantToReadList() {
         String returnString = "Your current Want to Read list: \n";
-        for (int i = 0; i < wantToReadTitles.size(); i++) {
-            returnString += wantToReadTitles.get(i) + " by " + wantToReadAuthors.get(i) + ", \n";
+        for (int i = 0; i < wantToRead.size(); i++) {
+            returnString += wantToRead.get(i).title + " by " + wantToRead.get(i).author + ", \n";
         }
         return returnString;
     }
 
     public String getProgress() {
         String returnString = "Your current reading progress: \n";
-        for (int i = 0; i < readingTitles.size(); i++) {
-            returnString += readingTitles.get(i) + " by " + readingAuthors.get(i) + ", Progress:  " + readingProgress.get(i) + "/"+ readingPages.get(i) +", \n";
+        for (int i = 0; i < reading.size(); i++) {
+            returnString += reading.get(i).title + " by " + reading.get(i).author + ", Progress:  " + readingProgress.get(i) + "/"+ reading.get(i).pages +", \n";
         }
         return returnString;
     }
 
     public String getReadList() {
         String returnString = "Books you have read: \n";
-        for (int i = 0; i < readTitles.size(); i++) {
-            returnString += readTitles.get(i) + " by " + readAuthors.get(i) + ", \n";
+        for (int i = 0; i < read.size(); i++) {
+            returnString += read.get(i).title + " by " + read.get(i).author + ", \n";
         }
         return returnString;
     }
